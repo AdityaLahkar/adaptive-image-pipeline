@@ -33,6 +33,14 @@ pipeline {
             }
         }
 
+        stage('Build Frontend Image') {
+
+            steps {
+
+                sh 'docker build -t $DOCKER_HUB_USERNAME/frontend ./frontend'
+            }
+        }
+
         stage('Docker Login') {
 
             steps {
@@ -61,6 +69,14 @@ pipeline {
             steps {
 
                 sh 'docker push $DOCKER_HUB_USERNAME/worker-service'
+            }
+        }
+
+        stage('Push Frontend Image') {
+
+            steps {
+
+                sh 'docker push $DOCKER_HUB_USERNAME/frontend'
             }
         }
     }

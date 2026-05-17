@@ -37,3 +37,18 @@ spec:
 
         - name: REDIS_PORT
           value: "6379"
+
+        volumeMounts:
+
+        - name: shared-storage
+          mountPath: /uploads
+
+        - name: shared-storage
+          mountPath: /processed
+
+      volumes:
+
+      - name: shared-storage
+
+        persistentVolumeClaim:
+          claimName: shared-storage-pvc

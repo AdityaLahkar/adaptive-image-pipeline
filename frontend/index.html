@@ -236,7 +236,7 @@
             }
 
             const response = await fetch(
-                    "http://localhost:8080/upload",
+                    `http://${window.location.hostname}:30080/upload`,
                     {
                         method: "POST",
                         body: formData

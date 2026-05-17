@@ -1,4 +1,4 @@
-# Adaptive Image Processing Pipeline with AIOps
+#Adaptive Image Processing Pipeline with AIOps
 
 ## Overview
 

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adaptive Image Processing Pipeline</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            background: black;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #loading {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Adaptive Image Processing</h1>
+
+    <p>
+        Resize, compress, or convert images using the distributed processing pipeline.
+    </p>
+
+    <form id="uploadForm">
+
+        <div class="form-group">
+            <label>Select Image</label>
+            <input type="file" id="file" required />
+        </div>
+
+        <div class="form-group">
+            <label>Operation</label>
+
+            <select id="operation" required>
+                <option value="">Choose operation</option>
+                <option value="resize">Resize</option>
+                <option value="compress">Compress</option>
+                <option value="convert">Convert PNG → JPG</option>
+            </select>
+        </div>
+
+        <div id="resizeFields" class="hidden">
+
+            <div class="form-group">
+                <label>Width</label>
+                <input type="number" id="width" min="1" />
+            </div>
+
+            <div class="form-group">
+                <label>Height</label>
+                <input type="number" id="height" min="1" />
+            </div>
+
+        </div>
+
+        <div id="compressFields" class="hidden">
+
+            <div class="form-group">
+                <label>Quality (0.1 - 1.0)</label>
+                <input
+                        type="number"
+                        id="quality"
+                        min="0.1"
+                        max="1.0"
+                        step="0.1"
+                />
+            </div>
+
+        </div>
+
+        <button type="submit">
+            Process Image
+        </button>
+
+    </form>
+
+    <div id="loading" class="hidden">
+        Processing image...
+    </div>
+
+    <div id="message"></div>
+
+</div>
+
+<script>
+
+    const operationSelect = document.getElementById("operation");
+
+    const resizeFields = document.getElementById("resizeFields");
+
+    const compressFields = document.getElementById("compressFields");
+
+    const form = document.getElementById("uploadForm");
+
+    const loading = document.getElementById("loading");
+
+    const message = document.getElementById("message");
+
+    operationSelect.addEventListener("change", () => {
+
+        resizeFields.classList.add("hidden");
+        compressFields.classList.add("hidden");
+
+        const operation = operationSelect.value;
+
+        if (operation === "resize") {
+            resizeFields.classList.remove("hidden");
+        }
+
+        if (operation === "compress") {
+            compressFields.classList.remove("hidden");
+        }
+    });
+
+    form.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        message.innerText = "";
+        loading.classList.remove("hidden");
+
+        try {
+
+            const formData = new FormData();
+
+            const file = document.getElementById("file").files[0];
+
+            const operation = operationSelect.value;
+
+            formData.append("file", file);
+            formData.append("operation", operation);
+
+            if (operation === "resize") {
+
+                formData.append(
+                        "width",
+                        document.getElementById("width").value
+                );
+
+                formData.append(
+                        "height",
+                        document.getElementById("height").value
+                );
+            }
+
+            if (operation === "compress") {
+
+                formData.append(
+                        "quality",
+                        document.getElementById("quality").value
+                );
+            }
+
+            if (operation === "convert") {
+                formData.append("targetFormat", "jpg");
+            }
+
+            const response = await fetch(
+                    "http://localhost:8080/upload",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+            );
+
+            if (!response.ok) {
+
+                const errorData = await response.json();
+
+                throw new Error(errorData.message);
+            }
+
+            const blob = await response.blob();
+
+            const downloadUrl = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+
+            a.href = downloadUrl;
+
+            const disposition = response.headers.get(
+                    "Content-Disposition"
+            );
+
+            let filename = "processed-file";
+
+            if (disposition && disposition.includes("filename=")) {
+
+                filename = disposition
+                        .split("filename=")[1]
+                        .replace(/"/g, "");
+            }
+
+            a.download = filename;
+
+            document.body.appendChild(a);
+
+            a.click();
+
+            a.remove();
+
+            window.URL.revokeObjectURL(downloadUrl);
+
+        } catch (error) {
+
+            message.innerText = error.message;
+
+        } finally {
+
+            loading.classList.add("hidden");
+        }
+    });
+
+</script>
+
+</body>
+</html>

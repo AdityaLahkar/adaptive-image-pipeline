@@ -1,0 +1,50 @@
+services:
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  api-service:
+    build: ./api-service
+    container_name: api-service
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - redis
+
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+    volumes:
+      - ./api-service/uploads:/uploads
+      - ./processed:/processed
+
+  worker-service:
+    build: ./worker-service
+    container_name: worker-service
+
+    depends_on:
+      - redis
+
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+    volumes:
+      - ./api-service/uploads:/uploads
+      - ./processed:/processed
+
+  frontend:
+    image: nginx:alpine
+    container_name: frontend
+
+    ports:
+      - "3000:80"
+
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro

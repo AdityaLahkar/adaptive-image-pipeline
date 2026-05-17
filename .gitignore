@@ -1,0 +1,39 @@
+# Maven build directories
+**/target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Runtime storage
+api-service/uploads/
+processed/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment/config secrets
+.env
+
+# Docker temporary files
+docker-data/
+
+# Node modules (if frontend later becomes React/Vue)
+node_modules/
+
+# Jenkins workspace/temp
+.jenkins/
+
+# Kubernetes local configs
+*.kubeconfig
+
+# Coverage/testing
+coverage/

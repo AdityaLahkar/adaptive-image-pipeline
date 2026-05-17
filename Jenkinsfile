@@ -4,7 +4,7 @@ pipeline {
 
     environment {
 
-        DOCKER_HUB_USERNAME = 'YOUR_DOCKER_USERNAME'
+        DOCKER_HUB_USERNAME = 'adityalahkar'
     }
 
     stages {

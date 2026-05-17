@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: api-service
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: api-service
+
+  template:
+
+    metadata:
+      labels:
+        app: api-service
+
+    spec:
+
+      containers:
+
+      - name: api-service
+
+        image: adityalahkar/api-service:latest
+
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8080
+
+        env:
+
+        - name: REDIS_HOST
+          value: redis
+
+        - name: REDIS_PORT
+          value: "6379"

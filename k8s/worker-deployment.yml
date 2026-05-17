@@ -29,8 +29,8 @@ spec:
 
         env:
 
-        - name: SPRING_DATA_REDIS_HOST
+        - name: REDIS_HOST
           value: redis
 
-        - name: SPRING_DATA_REDIS_PORT
+        - name: REDIS_PORT
           value: "6379"
